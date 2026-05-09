@@ -56,11 +56,10 @@ def analyze_message_with_ai(message: str, company_profile: str = "Koopilot - KOB
         error_msg = str(e)
         print(f"AI İşlem Hatası: {error_msg}")
         
-        # Eğer hata Google API kota/limit hatasıysa (429 RESOURCE_EXHAUSTED) zarif bir dönüş yap
         if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
             return AIFinalResponse(
                 intent="general_question",
-                ai_reply_draft="Sistemimizde anlık bir yoğunluk yaşanıyor. Lütfen yaklaşık 30-40 saniye bekleyip tekrar deneyiniz. (Not: Google Gemini ücretsiz plan limitlerine ulaşıldı.)"
+                ai_reply_draft="Sistemimizde anlık bir yoğunluk yaşanıyor. Lütfen yaklaşık 30-40 saniye bekleyip tekrar deneyiniz."
             )
             
         raise ValueError("Yapay zeka ile iletişim kurulurken bir hata oluştu.")

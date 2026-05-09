@@ -26,7 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rate Limiting State (In-Memory for Hackathon)
 RATE_LIMIT_STORE = {}
 RATE_LIMIT_SECONDS = 10
 RATE_LIMIT_REQUESTS = 5
@@ -56,7 +55,6 @@ def update_inventory(product_id: int, stock: int, db: Session = Depends(get_db))
 async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(get_db)):
     content = await file.read()
     
-    # 1. Dosya Boyutu Sınırı (Max 5MB)
     if len(content) > 5 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Dosya boyutu çok büyük. Maksimum 5MB yüklenebilir.")
         
@@ -68,7 +66,6 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
         else:
             raise HTTPException(status_code=400, detail="Sadece .xlsx veya .csv dosyaları desteklenmektedir.")
             
-        # 2. Satır Sayısı Sınırı (Max 5000 Satır)
         if len(df) > 5000:
             raise HTTPException(status_code=400, detail="Dosya çok büyük. Maksimum 5000 satır yüklenebilir.")
         
@@ -85,7 +82,7 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
                 price_val = float(row['price']) if pd.notna(row['price']) else 0.0
                 
                 if stock_val < 0 or price_val < 0:
-                    continue # Eksi değerleri atla veya hata fırlat. Şimdilik atlıyoruz.
+                    continue
                     
                 product = db.query(models.Product).filter(models.Product.name == str(row['name'])).first()
                 if product:
@@ -157,14 +154,12 @@ def get_shipping_status(order_id: int, db: Session = Depends(get_db)):
     }
 @app.post("/ai/analyze-message", summary="Müşteri mesajını analiz et ve niyetine göre aksiyon al")
 def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_db)):
-    # 3. Rate Limiting Check (Simple In-Memory)
     client_id = request.session_id or "anonymous"
     current_time = time.time()
     
     if client_id not in RATE_LIMIT_STORE:
         RATE_LIMIT_STORE[client_id] = []
     
-    # Eski istekleri temizle
     RATE_LIMIT_STORE[client_id] = [t for t in RATE_LIMIT_STORE[client_id] if current_time - t < RATE_LIMIT_SECONDS]
     
     if len(RATE_LIMIT_STORE[client_id]) >= RATE_LIMIT_REQUESTS:
@@ -262,14 +257,12 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
                     models.Product.name.ilike(f"%{ai_product.name}%")
                 ).first()
                 if matched_product:
-                    # Check if item already exists in this order to update qty, else create
                     existing_item = db.query(models.OrderItem).filter(
                         models.OrderItem.order_id == active_order.id,
                         models.OrderItem.product_id == matched_product.id
                     ).first()
                     
                     if existing_item:
-                        # In a real app, you might add or replace. Here we replace.
                         existing_item.quantity = ai_product.quantity
                     else:
                         order_item = models.OrderItem(
