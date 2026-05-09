@@ -1,0 +1,20 @@
+# Sanal Ortam
+venv/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Veritabanı (Yerel DB'yi yüklemiyoruz, db_init ile oluşturulacak)
+*.db
+*.sqlite3
+
+# Hassas Bilgiler (API Key vb.)
+.env
+
+# IDE Ayarları
+.vscode/
+.idea/
