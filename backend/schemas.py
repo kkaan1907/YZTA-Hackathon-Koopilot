@@ -7,8 +7,8 @@ class ProductBase(BaseModel):
     description: Optional[str] = None
     category: str
     unit: str = "Adet"
-    stock: int
-    price: float
+    stock: int = Field(..., ge=0, description="Ürün stok adedi negatif olamaz")
+    price: float = Field(..., ge=0.0, description="Ürün fiyatı negatif olamaz")
 class ProductCreate(ProductBase):
     pass
 class ProductResponse(ProductBase):
@@ -17,7 +17,7 @@ class ProductResponse(ProductBase):
         from_attributes = True
 class OrderItemBase(BaseModel):
     product_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0, description="Sipariş adedi en az 1 olmalıdır")
 class OrderItemResponse(OrderItemBase):
     id: int
     class Config:
@@ -39,8 +39,8 @@ class OrderResponse(OrderBase):
     class Config:
         from_attributes = True
 class MessageRequest(BaseModel):
-    message: str
-    session_id: Optional[str] = None
+    message: str = Field(..., min_length=1, max_length=1000, description="Müşteri mesajı (Max 1000 karakter)")
+    session_id: Optional[str] = Field(None, max_length=50, description="Oturum kimliği (Max 50 karakter)")
 class AIParsedProduct(BaseModel):
     name: str = Field(description="Müşterinin sipariş etmek istediği ürünün adı")
     quantity: int = Field(description="Müşterinin sipariş etmek istediği ürünün adedi")

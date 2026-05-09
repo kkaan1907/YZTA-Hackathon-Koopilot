@@ -5,6 +5,9 @@ from typing import List, Optional
 import random
 import pandas as pd
 import io
+import time
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from database import engine, get_db, Base
 import models
 import schemas
@@ -22,6 +25,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate Limiting State (In-Memory for Hackathon)
+RATE_LIMIT_STORE = {}
+RATE_LIMIT_SECONDS = 10
+RATE_LIMIT_REQUESTS = 5
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Sunucu tarafında beklenmeyen bir hata oluştu.", "error_msg": str(exc)}
+    )
+
 COMPANY_PROFILE = "Koopilot - Akıllı Operasyon ve Sipariş Yönetim Sistemi"
 @app.get("/inventory", response_model=List[schemas.ProductResponse], summary="Mevcut ürünleri ve stok durumlarını listele")
 def get_inventory(db: Session = Depends(get_db)):
@@ -39,6 +55,11 @@ def update_inventory(product_id: int, stock: int, db: Session = Depends(get_db))
 @app.post("/inventory/upload", summary="Excel veya CSV dosyasından toplu ürün yükle")
 async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(get_db)):
     content = await file.read()
+    
+    # 1. Dosya Boyutu Sınırı (Max 5MB)
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Dosya boyutu çok büyük. Maksimum 5MB yüklenebilir.")
+        
     try:
         if file.filename.endswith('.xlsx'):
             df = pd.read_excel(io.BytesIO(content))
@@ -46,6 +67,11 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
             df = pd.read_csv(io.BytesIO(content))
         else:
             raise HTTPException(status_code=400, detail="Sadece .xlsx veya .csv dosyaları desteklenmektedir.")
+            
+        # 2. Satır Sayısı Sınırı (Max 5000 Satır)
+        if len(df) > 5000:
+            raise HTTPException(status_code=400, detail="Dosya çok büyük. Maksimum 5000 satır yüklenebilir.")
+        
         df.columns = [c.lower() for c in df.columns]
         required_cols = ['name', 'category', 'stock', 'price']
         for col in required_cols:
@@ -53,26 +79,36 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
                 raise HTTPException(status_code=400, detail=f"Eksik sütun: {col}")
         updates = 0
         creations = 0
-        for _, row in df.iterrows():
-            product = db.query(models.Product).filter(models.Product.name == row['name']).first()
-            if product:
-                product.stock = int(row['stock'])
-                product.price = float(row['price'])
-                product.category = row['category']
-                if 'unit' in df.columns: product.unit = str(row['unit'])
-                if 'description' in df.columns: product.description = str(row['description'])
-                updates += 1
-            else:
-                new_prod = models.Product(
-                    name=row['name'],
-                    category=row['category'],
-                    stock=int(row['stock']),
-                    price=float(row['price']),
-                    unit=str(row.get('unit', 'Adet')),
-                    description=str(row.get('description', ''))
-                )
-                db.add(new_prod)
-                creations += 1
+        for index, row in df.iterrows():
+            try:
+                stock_val = int(row['stock']) if pd.notna(row['stock']) else 0
+                price_val = float(row['price']) if pd.notna(row['price']) else 0.0
+                
+                if stock_val < 0 or price_val < 0:
+                    continue # Eksi değerleri atla veya hata fırlat. Şimdilik atlıyoruz.
+                    
+                product = db.query(models.Product).filter(models.Product.name == str(row['name'])).first()
+                if product:
+                    product.stock = stock_val
+                    product.price = price_val
+                    product.category = str(row['category'])
+                    if 'unit' in df.columns and pd.notna(row['unit']): product.unit = str(row['unit'])
+                    if 'description' in df.columns and pd.notna(row['description']): product.description = str(row['description'])
+                    updates += 1
+                else:
+                    new_prod = models.Product(
+                        name=str(row['name']),
+                        category=str(row['category']),
+                        stock=stock_val,
+                        price=price_val,
+                        unit=str(row.get('unit', 'Adet')) if pd.notna(row.get('unit')) else 'Adet',
+                        description=str(row.get('description', '')) if pd.notna(row.get('description')) else ''
+                    )
+                    db.add(new_prod)
+                    creations += 1
+            except Exception as row_e:
+                print(f"Satır {index} atlandı. Hata: {row_e}")
+                continue
         db.commit()
         return {"status": "success", "updates": updates, "creations": creations}
     except Exception as e:
@@ -121,6 +157,24 @@ def get_shipping_status(order_id: int, db: Session = Depends(get_db)):
     }
 @app.post("/ai/analyze-message", summary="Müşteri mesajını analiz et ve niyetine göre aksiyon al")
 def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_db)):
+    # 3. Rate Limiting Check (Simple In-Memory)
+    client_id = request.session_id or "anonymous"
+    current_time = time.time()
+    
+    if client_id not in RATE_LIMIT_STORE:
+        RATE_LIMIT_STORE[client_id] = []
+    
+    # Eski istekleri temizle
+    RATE_LIMIT_STORE[client_id] = [t for t in RATE_LIMIT_STORE[client_id] if current_time - t < RATE_LIMIT_SECONDS]
+    
+    if len(RATE_LIMIT_STORE[client_id]) >= RATE_LIMIT_REQUESTS:
+        raise HTTPException(
+            status_code=429, 
+            detail=f"Çok fazla istek gönderdiniz. Lütfen {RATE_LIMIT_SECONDS} saniye bekleyin."
+        )
+        
+    RATE_LIMIT_STORE[client_id].append(current_time)
+
     try:
         history_text = ""
         if request.session_id:
