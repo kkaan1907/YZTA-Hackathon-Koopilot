@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import engine, Base
+from db_init import init_db
 import models
 from routers import inventory, orders, shipping, ai, integrations
 
 Base.metadata.create_all(bind=engine)
+init_db()
 
 app = FastAPI(
     title="Koopilot Backend API",
