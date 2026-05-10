@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import engine, Base
 import models
-from routers import inventory, orders, shipping, ai
+from routers import inventory, orders, shipping, ai, integrations
 
 Base.metadata.create_all(bind=engine)
 
@@ -25,6 +25,7 @@ app.include_router(inventory.router)
 app.include_router(orders.router)
 app.include_router(shipping.router)
 app.include_router(ai.router)
+app.include_router(integrations.router)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
@@ -43,3 +44,7 @@ def read_root():
         "docs": "/docs",
         "version": "1.1.0"
     }
+
+@app.get("/health", tags=["Root"])
+def health_check():
+    return {"status": "ok", "service": "koopilot-backend"}

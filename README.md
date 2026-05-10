@@ -211,6 +211,7 @@ config={
 - Python 3.11 veya 3.12 önerilir
 - Node.js 18+
 - Gemini API Key ([Google AI Studio](https://aistudio.google.com/)'dan ücretsiz alınabilir)
+- Opsiyonel Telegram Bot Token (BotFather üzerinden alınabilir)
 
 ### Backend
 
@@ -231,6 +232,7 @@ python -m pip install -r requirements.txt
 # 4. API anahtarını ayarla
 cp .env.example .env
 # .env dosyasını aç ve GEMINI_API_KEY değerini gir
+# Telegram gerçek kanal demosu için TELEGRAM_BOT_TOKEN değerini de ekleyebilirsin
 
 # 5. Veritabanını başlat (demo verileriyle)
 python db_init.py
@@ -258,11 +260,53 @@ Frontend: **http://localhost:5173** adresinde çalışacaktır.
 
 ---
 
+## 🌐 Canlı Demo Deploy
+
+Hackathon demosu için önerilen canlı mimari:
+
+- Backend: Render Free Web Service
+- Frontend: Vercel, Netlify veya Render Static Site
+- Mesaj kanalı: Mock WhatsApp + opsiyonel Telegram Bot API
+
+Backend için repo kökünde `render.yaml` bulunur. Render blueprint veya manuel kurulumda temel ayarlar:
+
+```text
+Root Directory: backend
+Build Command: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+Start Command: python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+Health Check Path: /health
+```
+
+Canlı backend kontrolü:
+
+```text
+https://<render-service>.onrender.com/health
+https://<render-service>.onrender.com/docs
+```
+
+Frontend deploy ortam değişkeni:
+
+```env
+VITE_API_URL=https://<render-service>.onrender.com
+```
+
+Telegram webhook kurulumu:
+
+```bash
+curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://<render-service>.onrender.com/integrations/telegram/webhook"
+```
+
+Detaylı canlı demo planı için: [`docs/canli-demo-plani.md`](docs/canli-demo-plani.md)
+
+---
+
 ## 📡 API Endpoints
 
 | Method | Endpoint | Açıklama |
 |--------|----------|----------|
+| `GET` | `/health` | Canlı servis sağlık kontrolü |
 | `POST` | `/ai/analyze-message` | Müşteri mesajını AI ile analiz et, niyet çıkar, aksiyon öner |
+| `POST` | `/integrations/telegram/webhook` | Telegram mesajlarını Koopilot AI ajanına aktar |
 | `GET` | `/inventory` | Tüm ürünleri ve stok durumlarını listele |
 | `PUT` | `/inventory/{product_id}` | Ürün stok güncelle |
 | `POST` | `/inventory/upload` | Excel/CSV ile toplu ürün yükle |
