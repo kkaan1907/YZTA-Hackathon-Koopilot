@@ -51,7 +51,41 @@ https://<render-service>.onrender.com/docs
 
 ## Frontend Deploy
 
-Vercel/Netlify için:
+Önerilen yol Vercel. Repo içinde `frontend/vercel.json` bulunur; bu dosya Vite uygulamasının sayfa yenilemede `index.html` üzerinden çalışmasını sağlar.
+
+### Vercel Kurulumu
+
+1. https://vercel.com adresine GitHub hesabıyla giriş yap.
+2. Dashboard'da **Add New...** veya **New Project** seç.
+3. `kkaan1907/YZTA-Hackathon-Koopilot` reposunu seç.
+4. Import ekranında ayarları şu şekilde yap:
+
+```text
+Framework Preset: Vite
+Root Directory: frontend
+Build Command: npm run build
+Output Directory: dist
+Install Command: npm install
+```
+
+5. **Environment Variables** bölümüne şunu ekle:
+
+```env
+VITE_API_URL=https://koopilot-backend.onrender.com
+```
+
+6. **Deploy** butonuna bas.
+7. Deploy bitince Vercel'in verdiği frontend URL'ini aç.
+
+Canlı frontend açıldığında tarayıcı geliştirici konsolunda API isteklerinin şu backend'e gittiği kontrol edilmeli:
+
+```text
+https://koopilot-backend.onrender.com
+```
+
+### Netlify Alternatifi
+
+Netlify kullanılacaksa:
 
 ```text
 Root Directory: frontend
@@ -59,10 +93,16 @@ Build Command: npm install && npm run build
 Output Directory: dist
 ```
 
-Environment variable:
+Environment variable yine aynı:
 
 ```env
-VITE_API_URL=https://<render-service>.onrender.com
+VITE_API_URL=https://koopilot-backend.onrender.com
+```
+
+Netlify için SPA refresh desteği gerekiyorsa `frontend/public/_redirects` dosyası eklenebilir:
+
+```text
+/* /index.html 200
 ```
 
 ## Telegram Webhook Kurulumu

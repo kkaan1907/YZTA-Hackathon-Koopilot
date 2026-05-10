@@ -280,20 +280,30 @@ Health Check Path: /health
 Canlı backend kontrolü:
 
 ```text
-https://<render-service>.onrender.com/health
-https://<render-service>.onrender.com/docs
+https://koopilot-backend.onrender.com/health
+https://koopilot-backend.onrender.com/docs
 ```
 
 Frontend deploy ortam değişkeni:
 
 ```env
-VITE_API_URL=https://<render-service>.onrender.com
+VITE_API_URL=https://koopilot-backend.onrender.com
+```
+
+Vercel frontend ayarları:
+
+```text
+Framework Preset: Vite
+Root Directory: frontend
+Build Command: npm run build
+Output Directory: dist
+Install Command: npm install
 ```
 
 Telegram webhook kurulumu:
 
 ```bash
-curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://<render-service>.onrender.com/integrations/telegram/webhook"
+curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://koopilot-backend.onrender.com/integrations/telegram/webhook"
 ```
 
 Detaylı canlı demo planı için: [`docs/canli-demo-plani.md`](docs/canli-demo-plani.md)
