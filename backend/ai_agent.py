@@ -164,7 +164,7 @@ def analyze_message_with_ai(message: str, company_profile: str = "Koopilot - KOB
        - Eğer stokta olmayan bir ürün istenirse nazikçe belirt ve alternatif öner.
     """
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-flash-lite',
         contents=prompt,
         config={
             'response_mime_type': 'application/json',

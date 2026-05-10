@@ -244,24 +244,14 @@ const MessagePanel = ({ messages, setMessages, isLoading, setIsLoading, sessionI
         </button>
       </form>
       {showHistory && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.45)',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          zIndex: 1000
-        }}>
-          <aside style={{
-            width: '360px',
-            maxWidth: '92vw',
-            height: '100%',
-            backgroundColor: 'var(--surface-elevated)',
-            borderLeft: '1px solid var(--border-color)',
-            boxShadow: '-16px 0 32px rgba(0,0,0,0.18)',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
+        <div
+          className="history-overlay"
+          onClick={() => setShowHistory(false)}
+        >
+          <aside
+            className="history-drawer"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div style={{
               padding: '20px',
               borderBottom: '1px solid var(--border-color)',

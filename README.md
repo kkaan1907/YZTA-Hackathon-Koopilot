@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
   <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React"/>
-  <img src="https://img.shields.io/badge/Gemini_AI-2.5_Flash-4285F4?logo=google&logoColor=white" alt="Gemini"/>
+  <img src="https://img.shields.io/badge/Gemini_AI-3.1_Flash--Lite-4285F4?logo=google&logoColor=white" alt="Gemini"/>
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" alt="SQLite"/>
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License"/>
 </p>
@@ -168,7 +168,7 @@ Müşteri Mesajı → AI Analiz → Niyet Çıkarımı → Aksiyon Önerisi → 
 | Katman | Teknoloji | Neden? |
 |--------|-----------|--------|
 | **Backend** | FastAPI + Python 3.11+ | Hackathon gereksinimi, hızlı API geliştirme, otomatik `/docs` |
-| **AI** | Google Gemini 2.5 Flash | Hackathon gereksinimi (Gemini öneriliyor), hızlı, Türkçe desteği güçlü |
+| **AI** | Google Gemini 3.1 Flash-Lite | Düşük gecikmeli, düşük maliyetli, yapılandırılmış çıktı ve hafif ajan görevleri için uygun |
 | **Veritabanı** | SQLite + SQLAlchemy ORM | Sıfır konfigürasyon, taşınabilir, hackathon için ideal |
 | **Frontend** | React 18 + Vite | Hızlı geliştirme, modern araçlar, component tabanlı UI |
 | **Stil** | CSS (Modern) | Temiz, hızlı, bağımlılık gerektirmeyen |

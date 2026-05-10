@@ -103,6 +103,30 @@ input:focus, textarea:focus {
   min-height: 100%;
   animation: pageEnter 220ms ease-out both;
 }
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.42);
+  animation: historyOverlayEnter 180ms ease-out both;
+}
+.history-drawer {
+  width: 380px;
+  max-width: min(92vw, 420px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: -18px 18px 36px rgba(0, 0, 0, 0.22);
+  animation: historyDrawerEnter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -135,8 +159,32 @@ input:focus, textarea:focus {
   }
 }
 
+@keyframes historyOverlayEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes historyDrawerEnter {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-transition {
+    animation: none;
+  }
+  .history-overlay,
+  .history-drawer {
     animation: none;
   }
 }
