@@ -20,6 +20,9 @@ class OrderItemBase(BaseModel):
     quantity: float = Field(..., gt=0, description="Sipariş adedi en az 1 olmalıdır")
 class OrderItemResponse(OrderItemBase):
     id: int
+    product_name: Optional[str] = None
+    unit: Optional[str] = None
+    price: Optional[float] = None
     class Config:
         from_attributes = True
 class OrderBase(BaseModel):

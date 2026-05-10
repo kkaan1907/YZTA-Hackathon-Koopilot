@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, AlertCircle, ShoppingBag } from 'lucide-react';
 import { analyzeMessage } from '../services/api';
-const MessagePanel = () => {
+const MessagePanel = ({ messages, setMessages, isLoading, setIsLoading, sessionId }) => {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([
-    { id: 1, type: 'ai', text: 'Merhaba! Ben Koopilot. Sipariş, stok veya kargo ile ilgili size nasıl yardımcı olabilirim? 🌿' }
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(`session_${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

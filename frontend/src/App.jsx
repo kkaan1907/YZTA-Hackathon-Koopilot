@@ -9,10 +9,23 @@ import DailySummary from './components/DailySummary';
 function App() {
   const [activeTab, setActiveTab] = useState('messages');
   const [searchTerm, setSearchTerm] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, type: 'ai', text: 'Merhaba! Ben Koopilot. Sipariş, stok veya kargo ile ilgili size nasıl yardımcı olabilirim? 🌿' }
+  ]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSessionId] = useState(`session_${Math.random().toString(36).substr(2, 9)}`);
   const renderContent = () => {
     switch (activeTab) {
       case 'messages':
-        return <MessagePanel />;
+        return (
+          <MessagePanel
+            messages={chatMessages}
+            setMessages={setChatMessages}
+            isLoading={chatLoading}
+            setIsLoading={setChatLoading}
+            sessionId={chatSessionId}
+          />
+        );
       case 'orders':
         return <OrderPanel />;
       case 'inventory':
@@ -22,7 +35,15 @@ function App() {
       case 'shipping':
         return <ShippingPanel />;
       default:
-        return <MessagePanel />;
+        return (
+          <MessagePanel
+            messages={chatMessages}
+            setMessages={setChatMessages}
+            isLoading={chatLoading}
+            setIsLoading={setChatLoading}
+            sessionId={chatSessionId}
+          />
+        );
     }
   };
   const getTitle = () => {

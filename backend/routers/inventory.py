@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
-import pandas as pd
 import io
+import csv
 from database import get_db
 import models
 import schemas
@@ -62,54 +62,65 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
         raise HTTPException(status_code=400, detail="Dosya boyutu çok büyük. Maksimum 5MB yüklenebilir.")
         
     try:
+        rows = []
         if file.filename.endswith('.xlsx'):
-            df = pd.read_excel(io.BytesIO(content))
+            try:
+                from openpyxl import load_workbook
+            except ImportError:
+                raise HTTPException(status_code=400, detail="XLSX desteği için openpyxl kurulmalıdır. CSV yüklemeyi deneyebilirsiniz.")
+
+            workbook = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+            sheet = workbook.active
+            headers = [str(cell.value).strip().lower() if cell.value is not None else "" for cell in next(sheet.iter_rows(max_row=1))]
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                rows.append({headers[i]: row[i] for i in range(min(len(headers), len(row)))})
         elif file.filename.endswith('.csv'):
-            df = pd.read_csv(io.BytesIO(content))
+            decoded = content.decode("utf-8-sig")
+            rows = list(csv.DictReader(io.StringIO(decoded)))
+            rows = [{str(k).strip().lower(): v for k, v in row.items()} for row in rows]
         else:
             raise HTTPException(status_code=400, detail="Sadece .xlsx veya .csv dosyaları desteklenmektedir.")
             
-        if len(df) > 5000:
+        if len(rows) > 5000:
             raise HTTPException(status_code=400, detail="Dosya çok büyük. Maksimum 5000 satır yüklenebilir.")
         
-        df.columns = [c.lower() for c in df.columns]
         required_cols = ['name', 'category', 'stock', 'price']
         for col in required_cols:
-            if col not in df.columns:
+            if not rows or col not in rows[0]:
                 raise HTTPException(status_code=400, detail=f"Eksik sütun: {col}")
         
         updates = 0
         creations = 0
-        for index, row in df.iterrows():
+        for index, row in enumerate(rows, start=2):
             try:
-                # Float conversion for flexibility (kg, liters etc)
-                stock_val = float(row['stock']) if pd.notna(row['stock']) else 0.0
-                price_val = float(row['price']) if pd.notna(row['price']) else 0.0
+                stock_val = float(str(row.get('stock') or 0).replace(",", "."))
+                price_val = float(str(row.get('price') or 0).replace(",", "."))
                 
                 if stock_val < 0 or price_val < 0:
                     continue
                     
-                # Use name to find existing product
-                product_name = str(row['name']).strip()
+                product_name = str(row.get('name') or '').strip()
+                if not product_name:
+                    continue
                 product = db.query(models.Product).filter(models.Product.name == product_name).first()
                 
                 if product:
                     product.stock = stock_val
                     product.price = price_val
-                    product.category = str(row['category']).strip()
-                    if 'unit' in df.columns and pd.notna(row['unit']): 
-                        product.unit = str(row['unit']).strip()
-                    if 'description' in df.columns and pd.notna(row['description']): 
-                        product.description = str(row['description']).strip()
+                    product.category = str(row.get('category') or '').strip()
+                    if row.get('unit'): 
+                        product.unit = str(row.get('unit')).strip()
+                    if row.get('description'): 
+                        product.description = str(row.get('description')).strip()
                     updates += 1
                 else:
                     new_prod = models.Product(
                         name=product_name,
-                        category=str(row['category']).strip(),
+                        category=str(row.get('category') or '').strip(),
                         stock=stock_val,
                         price=price_val,
-                        unit=str(row.get('unit', 'Adet')).strip() if pd.notna(row.get('unit')) else 'Adet',
-                        description=str(row.get('description', '')).strip() if pd.notna(row.get('description')) else ''
+                        unit=str(row.get('unit') or 'Adet').strip(),
+                        description=str(row.get('description') or '').strip()
                     )
                     db.add(new_prod)
                     creations += 1
@@ -118,6 +129,9 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
                 continue
         db.commit()
         return {"status": "success", "updates": updates, "creations": creations}
+    except HTTPException:
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Dosya işlenirken hata oluştu: {str(e)}")

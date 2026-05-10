@@ -318,7 +318,7 @@ const InventoryPanel = ({ searchTerm }) => {
             padding: '32px',
             borderRadius: '24px',
             width: '100%',
-            maxWidt: '500px',
+            maxWidth: '500px',
             boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>

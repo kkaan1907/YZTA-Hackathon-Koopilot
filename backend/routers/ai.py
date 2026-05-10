@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, date
 import time
+import re
+from difflib import SequenceMatcher
 from database import get_db
 import models
 import schemas
@@ -18,6 +20,32 @@ RATE_LIMIT_SECONDS = 10
 RATE_LIMIT_REQUESTS = 5
 
 COMPANY_PROFILE = "Koopilot - Akıllı Operasyon ve Sipariş Yönetim Sistemi"
+
+
+def normalize_text(value: str) -> str:
+    replacements = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
+    cleaned = value.translate(replacements).lower()
+    return re.sub(r"[^a-z0-9\s]", " ", cleaned)
+
+
+def find_best_product(ai_product_name: str, products: list[models.Product]):
+    query = normalize_text(ai_product_name)
+    query_tokens = set(query.split())
+    best_product = None
+    best_score = 0.0
+
+    for product in products:
+        haystack = normalize_text(f"{product.name} {product.description or ''} {product.category}")
+        haystack_tokens = set(haystack.split())
+        token_score = len(query_tokens & haystack_tokens) / max(len(query_tokens), 1)
+        fuzzy_score = SequenceMatcher(None, query, normalize_text(product.name)).ratio()
+        score = max(token_score, fuzzy_score)
+        if score > best_score:
+            best_product = product
+            best_score = score
+
+    return best_product if best_score >= 0.45 else None
+
 
 @router.post("/analyze-message", summary="Müşteri mesajını analiz et ve niyetine göre aksiyon al")
 def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_db)):
@@ -76,7 +104,7 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
         db.commit()
 
         response_data = {
-            "ai_analysis": ai_result.dict(),
+            "ai_analysis": ai_result.model_dump(),
             "created_order": None,
             "shipping_info": None,
             "warnings": []
@@ -105,6 +133,11 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
                 existing_draft.ai_reply_draft = ai_result.ai_reply_draft
                 active_order = existing_draft
             else:
+                missing = set(ai_result.missing_info)
+                if not ai_result.customer_name: missing.add("isim")
+                if not ai_result.phone: missing.add("telefon")
+                if not ai_result.address: missing.add("adres")
+
                 new_order = models.Order(
                     session_id=request.session_id,
                     customer_name=ai_result.customer_name,
@@ -112,7 +145,7 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
                     city=ai_result.city,
                     address=ai_result.address,
                     status=models.OrderStatus.DRAFT,
-                    missing_info=", ".join(ai_result.missing_info) if ai_result.missing_info else None,
+                    missing_info=", ".join(sorted(missing)) if missing else None,
                     ai_reply_draft=ai_result.ai_reply_draft
                 )
                 db.add(new_order)
@@ -121,11 +154,14 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
 
             warnings = []
             stock_info_list = []
+            all_products = db.query(models.Product).all()
             for ai_product in ai_result.products:
-                matched_product = db.query(models.Product).filter(
-                    models.Product.name.ilike(f"%{ai_product.name}%")
-                ).first()
+                matched_product = find_best_product(ai_product.name, all_products)
                 if matched_product:
+                    if ai_product.quantity is None or ai_product.quantity <= 0:
+                        warnings.append(f"'{matched_product.name}' için miktar eksik olduğu için sipariş kalemi beklemeye alındı.")
+                        continue
+
                     existing_item = db.query(models.OrderItem).filter(
                         models.OrderItem.order_id == active_order.id,
                         models.OrderItem.product_id == matched_product.id
@@ -142,6 +178,10 @@ def analyze_message(request: schemas.MessageRequest, db: Session = Depends(get_d
                         db.add(order_item)
                         
                     stock_info_list.append(f"{matched_product.name} ({matched_product.stock} {matched_product.unit} mevcut)")
+                    if matched_product.stock < ai_product.quantity:
+                        warnings.append(
+                            f"'{matched_product.name}' için stok yetersiz: mevcut {matched_product.stock} {matched_product.unit}, istenen {ai_product.quantity}."
+                        )
                 else:
                     warnings.append(f"'{ai_product.name}' adlı ürün stokta bulunamadı.")
             

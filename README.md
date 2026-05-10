@@ -208,7 +208,7 @@ config={
 
 ### Gereksinimler
 
-- Python 3.11+
+- Python 3.11 veya 3.12 önerilir
 - Node.js 18+
 - Gemini API Key ([Google AI Studio](https://aistudio.google.com/)'dan ücretsiz alınabilir)
 
@@ -221,11 +221,12 @@ cd YZTA-Hackathon-Koopilot
 
 # 2. Backend sanal ortam oluştur
 cd backend
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 3. Bağımlılıkları yükle
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
 # 4. API anahtarını ayarla
 cp .env.example .env
@@ -235,7 +236,7 @@ cp .env.example .env
 python db_init.py
 
 # 6. Sunucuyu başlat
-uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --reload --port 8000
 ```
 
 Backend çalıştıktan sonra: **http://localhost:8000/docs** adresinden etkileşimli API dokümantasyonuna erişebilirsiniz.

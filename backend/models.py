@@ -42,6 +42,18 @@ class OrderItem(Base):
     quantity = Column(Float, nullable=True)
     order = relationship("Order", back_populates="items")
     product = relationship("Product")
+
+    @property
+    def product_name(self):
+        return self.product.name if self.product else None
+
+    @property
+    def unit(self):
+        return self.product.unit if self.product else None
+
+    @property
+    def price(self):
+        return self.product.price if self.product else None
 class MessageLog(Base):
     __tablename__ = "message_logs"
     id = Column(Integer, primary_key=True, index=True)

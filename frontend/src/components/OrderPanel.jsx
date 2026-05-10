@@ -147,6 +147,37 @@ const OrderPanel = () => {
                 ⚠️ Eksik Bilgiler: {order.missing_info}
               </div>
             )}
+            <div style={{
+              borderTop: '1px solid var(--border-color)',
+              paddingTop: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-light)', fontWeight: '700', textTransform: 'uppercase' }}>
+                Ürün Kalemleri
+              </div>
+              {order.items.length > 0 ? (
+                order.items.map((item) => (
+                  <div key={item.id} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '14px',
+                    padding: '8px 10px',
+                    backgroundColor: '#F9FAFB',
+                    borderRadius: '8px'
+                  }}>
+                    <span style={{ fontWeight: '600' }}>{item.product_name || `Ürün #${item.product_id}`}</span>
+                    <span style={{ color: 'var(--text-light)' }}>{item.quantity} {item.unit || 'adet'}</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ fontSize: '13px', color: 'var(--text-light)' }}>
+                  Henüz ürün kalemi oluşturulmadı.
+                </div>
+              )}
+            </div>
             {order.status === 'Taslak' && (
               <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
                 <button 

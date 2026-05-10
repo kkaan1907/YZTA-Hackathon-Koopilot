@@ -22,9 +22,15 @@ def approve_order(order_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
     if order.status != models.OrderStatus.DRAFT:
         raise HTTPException(status_code=400, detail="Sadece 'Taslak' durumundaki siparişler onaylanabilir.")
+    if order.missing_info:
+        raise HTTPException(status_code=400, detail=f"Siparişte eksik bilgiler var: {order.missing_info}")
+    if not order.items:
+        raise HTTPException(status_code=400, detail="Siparişte onaylanacak ürün kalemi bulunmuyor.")
     
     try:
         for item in order.items:
+            if item.quantity is None or item.quantity <= 0:
+                raise ValueError("Sipariş kalemlerinde miktarı eksik veya geçersiz ürün var.")
             product = db.query(models.Product).filter(models.Product.id == item.product_id).with_for_update().first()
             if not product:
                 raise ValueError(f"Sipariş kalemi için ürün bulunamadı: {item.product_id}")
