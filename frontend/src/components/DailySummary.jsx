@@ -21,7 +21,7 @@ const DailySummary = () => {
   if (!summary) return <div style={{ padding: '24px' }}>Veri bulunamadı.</div>;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{
+      <div className="glass-card" style={{
         backgroundColor: 'var(--primary-dark)',
         color: 'var(--on-primary)',
         padding: '32px',
@@ -42,7 +42,7 @@ const DailySummary = () => {
         }} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-        <div style={{
+        <div className="glass-card" style={{
           backgroundColor: 'var(--white)',
           padding: '24px',
           borderRadius: '20px',
@@ -59,7 +59,7 @@ const DailySummary = () => {
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700' }}>{summary.total_messages}</div>
         </div>
-        <div style={{
+        <div className="glass-card" style={{
           backgroundColor: 'var(--white)',
           padding: '24px',
           borderRadius: '20px',
@@ -77,7 +77,7 @@ const DailySummary = () => {
           <div style={{ fontSize: '32px', fontWeight: '700' }}>{summary.low_stock_count}</div>
         </div>
       </div>
-      <div style={{
+      <div className="glass-card" style={{
         backgroundColor: 'var(--white)',
         padding: '24px',
         borderRadius: '24px',

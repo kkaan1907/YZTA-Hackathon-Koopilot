@@ -176,7 +176,7 @@ const InventoryPanel = ({ searchTerm }) => {
       </div>
       {}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-        <div style={{
+        <div className="glass-card" style={{
           backgroundColor: 'var(--white)',
           padding: '24px',
           borderRadius: '20px',
@@ -193,7 +193,7 @@ const InventoryPanel = ({ searchTerm }) => {
             <div style={{ fontSize: '24px', fontWeight: '700' }}>{filteredInventory.length}</div>
           </div>
         </div>
-        <div style={{
+        <div className="glass-card" style={{
           backgroundColor: 'var(--white)',
           padding: '24px',
           borderRadius: '20px',
@@ -210,7 +210,7 @@ const InventoryPanel = ({ searchTerm }) => {
             <div style={{ fontSize: '24px', fontWeight: '700' }}>{filteredInventory.filter(i => i.stock < 5).length}</div>
           </div>
         </div>
-        <div style={{
+        <div className="glass-card" style={{
           backgroundColor: 'var(--white)',
           padding: '24px',
           borderRadius: '20px',
@@ -229,7 +229,7 @@ const InventoryPanel = ({ searchTerm }) => {
         </div>
       </div>
       {}
-      <div style={{
+      <div className="glass-card" style={{
         backgroundColor: 'var(--white)',
         borderRadius: '24px',
         padding: '24px',

@@ -12,8 +12,10 @@
   --surface-soft: #F3F4F6;
   --surface-elevated: #FFFFFF;
   --message-ai-bg: #F3F4F6;
-  --sidebar-bg: #1B4332;
+  --sidebar-bg: rgba(27, 67, 50, 0.85);
+  --sidebar-text: #FFFFFF;
   --shadow-soft: 0 4px 20px rgba(0,0,0,0.05);
+  --shadow-hover: 0 8px 30px rgba(0,0,0,0.08);
   --text-dark: #2D2D2D;
   --text-light: #6B7280;
   --error: #E63946;
@@ -21,7 +23,13 @@
   --success: #2A9D8F;
   --border-color: #E5E7EB;
   --sidebar-width: 260px;
-  --header-height: 64px;
+  --header-height: 72px;
+  
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  
   font-family: 'Inter', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -41,11 +49,18 @@
   --surface-soft: #263244;
   --surface-elevated: #172033;
   --message-ai-bg: #1F2937;
-  --sidebar-bg: #071B14;
+  --sidebar-bg: rgba(7, 27, 20, 0.85);
+  --sidebar-text: #F8FAFC;
   --shadow-soft: 0 8px 26px rgba(0,0,0,0.35);
+  --shadow-hover: 0 12px 40px rgba(0,0,0,0.45);
   --text-dark: #E5E7EB;
   --text-light: #9CA3AF;
   --border-color: #374151;
+
+  /* Glassmorphism Tokens Dark */
+  --glass-bg: rgba(15, 23, 42, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 * {
   box-sizing: border-box;
@@ -57,6 +72,61 @@ body {
   min-height: 100vh;
   background-color: var(--bg-cream);
   color: var(--text-dark);
+  position: relative;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: -10%; left: 10%; width: 40vw; height: 40vw;
+  background: radial-gradient(circle, rgba(82, 183, 136, 0.3) 0%, transparent 60%);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  animation: blobFloat1 18s ease-in-out infinite alternate;
+}
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -10%; right: 10%; width: 50vw; height: 50vw;
+  background: radial-gradient(circle, rgba(27, 67, 50, 0.25) 0%, transparent 60%);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  animation: blobFloat2 22s ease-in-out infinite alternate-reverse;
+}
+
+[data-theme="dark"] body::before {
+  background: radial-gradient(circle, rgba(82, 183, 136, 0.15) 0%, transparent 60%);
+}
+[data-theme="dark"] body::after {
+  background: radial-gradient(circle, rgba(45, 106, 79, 0.1) 0%, transparent 60%);
+}
+
+@keyframes blobFloat1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(5%, 10%) scale(1.1); }
+  100% { transform: translate(-5%, 5%) scale(0.9); }
+}
+
+@keyframes blobFloat2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, -10%) scale(0.9); }
+  100% { transform: translate(5%, -5%) scale(1.1); }
+}
+
+.glass-card {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover) !important;
 }
 h1, h2, h3, h4 {
   font-family: 'Outfit', sans-serif;
@@ -66,19 +136,30 @@ h1, h2, h3, h4 {
 button {
   cursor: pointer;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-family: inherit;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+button:active:not(:disabled) {
+  transform: translateY(0);
 }
 input, textarea {
   font-family: inherit;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+  background-color: var(--surface);
+  color: var(--text-dark);
 }
 input:focus, textarea:focus {
-  outline: 2px solid var(--primary-light);
-  border-color: transparent;
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.2);
 }
 .dashboard-layout {
   display: flex;
@@ -91,7 +172,7 @@ input:focus, textarea:focus {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--bg-cream);
+  background-color: transparent;
 }
 .content-area {
   flex: 1;
