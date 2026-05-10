@@ -43,9 +43,10 @@ class MessageRequest(BaseModel):
     session_id: Optional[str] = Field(None, max_length=50, description="Oturum kimliği (Max 50 karakter)")
 class AIParsedProduct(BaseModel):
     name: str = Field(description="Müşterinin sipariş etmek istediği ürünün adı")
-    quantity: int = Field(description="Müşterinin sipariş etmek istediği ürünün adedi")
+    quantity: Optional[float] = Field(None, description="Müşterinin sipariş etmek istediği ürünün miktarı (kg veya adet olarak)")
+    unit: Optional[str] = Field(None, description="Müşterinin belirttiği veya ürün için gerekli birim (kg, kavanoz, adet vb.)")
 class AIFinalResponse(BaseModel):
-    intent: str = Field(description="Mesajın amacı: 'new_order', 'shipping_query', 'general_question' veya 'complaint' olmalıdır.")
+    intent: str = Field(description="Mesajın amacı: 'new_order', 'shipping_query', 'general_question', 'complaint' veya 'return_request' olmalıdır.")
     customer_name: Optional[str] = Field(None, description="Mesajda geçiyorsa müşterinin adı soyadı")
     phone: Optional[str] = Field(None, description="Mesajda geçiyorsa müşterinin telefon numarası")
     address: Optional[str] = Field(None, description="Mesajda geçiyorsa müşterinin açık adresi")

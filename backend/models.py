@@ -8,6 +8,8 @@ class OrderStatus(str, enum.Enum):
     APPROVED = "Onaylandı"
     SHIPPED = "Kargoda"
     CANCELLED = "İptal"
+    REJECTED = "Reddedildi"
+    DELETED = "Silindi"
 class Product(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True, index=True)
@@ -29,13 +31,15 @@ class Order(Base):
     order_date = Column(DateTime, default=datetime.utcnow)
     missing_info = Column(String, nullable=True)
     ai_reply_draft = Column(String, nullable=True)
+    shipping_status = Column(String, default="Hazırlanıyor")
+    shipping_updated_at = Column(DateTime, nullable=True)
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 class OrderItem(Base):
     __tablename__ = "order_items"
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
     product_id = Column(Integer, ForeignKey("products.id"))
-    quantity = Column(Integer, default=1)
+    quantity = Column(Float, nullable=True)
     order = relationship("Order", back_populates="items")
     product = relationship("Product")
 class MessageLog(Base):

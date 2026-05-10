@@ -11,14 +11,28 @@ def init_db():
             return
         print("Dummy ürünler ekleniyor...")
         products = [
-            models.Product(name="Ev Yapımı Domates Salçası 1Kg", category="Gıda", stock=50, price=120.0),
-            models.Product(name="Hakiki Nar Ekşisi 500ml", category="Gıda", stock=30, price=150.0),
-            models.Product(name="Keten Kumaş Masa Örtüsü", category="Tekstil", stock=15, price=300.0),
-            models.Product(name="Organik Sızma Zeytinyağı 1L", category="Gıda", stock=20, price=350.0),
-            models.Product(name="El Dokuması Kilim", category="Ev Dekorasyonu", stock=5, price=1200.0)
+            models.Product(name="Domates Salçası", category="Gıda", stock=25, price=85.0, unit="Kavanoz", description="Ev yapımı, doğal domates salçası"),
+            models.Product(name="Biber Salçası (Acı)", category="Gıda", stock=15, price=95.0, unit="Kavanoz", description="Köy usulü acı biber salçası"),
+            models.Product(name="Nar Ekşisi", category="Gıda", stock=30, price=120.0, unit="Şişe", description="100% doğal nar ekşisi"),
+            models.Product(name="Zeytinyağı (Soğuk Sıkım)", category="Gıda", stock=3, price=450.0, unit="Litre", description="Erken hasat soğuk sıkım zeytinyağı"),
+            models.Product(name="Kuru Fasulye", category="Bakliyat", stock=40, price=75.0, unit="kg", description="İspir fasulyesi"),
+            models.Product(name="El Yapımı Erişte", category="Gıda", stock=20, price=60.0, unit="Paket", description="Yumurtalı köy eriştesi"),
+            models.Product(name="Çilek Reçeli", category="Gıda", stock=12, price=70.0, unit="Kavanoz", description="Taze çileklerle hazırlanmış reçel"),
+            models.Product(name="Süzme Bal", category="Gıda", stock=8, price=320.0, unit="Kavanoz", description="Yüksek rakım yayla balı")
         ]
         db.add_all(products)
         db.commit()
+
+        logs = [
+            models.MessageLog(session_id="s1", raw_message="Merhaba, salça var mı?", intent="general_question", ai_reply_draft="Merhaba! Evet, domates ve biber salçamız mevcuttur."),
+            models.MessageLog(session_id="s2", raw_message="2 kavanoz domates salçası almak istiyorum", intent="new_order", ai_reply_draft="Tabii, siparişinizi hazırlıyorum. Adresinizi alabilir miyim?"),
+            models.MessageLog(session_id="s3", raw_message="Kargom nerede kaldı?", intent="shipping_query", ai_reply_draft="Siparişiniz şu an yolda görünüyor."),
+            models.MessageLog(session_id="s4", raw_message="Ürünler çok güzel, teşekkürler", intent="general_question", ai_reply_draft="Biz teşekkür ederiz, afiyet olsun! 🌿"),
+            models.MessageLog(session_id="s5", raw_message="İade etmek istiyorum", intent="return_request", ai_reply_draft="İade talebinizi aldık, ekibimiz size ulaşacaktır.")
+        ]
+        db.add_all(logs)
+        db.commit()
+
         print("Geçmiş siparişler ekleniyor...")
         order1 = models.Order(
             customer_name="Ayşe Yılmaz",
