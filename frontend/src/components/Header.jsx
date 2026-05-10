@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, Search, AlertTriangle, X } from 'lucide-react';
+import { Bell, User, Search, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { getInventoryAlerts } from '../services/api';
-const Header = ({ title, searchTerm, setSearchTerm }) => {
+const Header = ({ title, searchTerm, setSearchTerm, theme, setTheme }) => {
   const [alerts, setAlerts] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
@@ -33,20 +33,44 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
   return (
     <header style={{
       height: 'var(--header-height)',
-      backgroundColor: 'var(--white)',
+      backgroundColor: 'var(--surface)',
       borderBottom: '1px solid var(--border-color)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 24px',
+      position: 'relative',
       zIndex: 10
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <h2 style={{ fontSize: '20px', margin: 0 }}>{title}</h2>
+      <div style={{
+        minWidth: '220px',
+        maxWidth: '260px',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        zIndex: 2
+      }}>
+        <h2 style={{
+          fontSize: '20px',
+          margin: 0,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis'
+        }}>{title}</h2>
+      </div>
+      <div style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 'clamp(260px, 42vw, 420px)',
+        zIndex: 1
+      }}>
         <div style={{
           position: 'relative',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
+          width: '100%'
         }}>
           <Search size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
           <input 
@@ -56,18 +80,37 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               paddingLeft: '38px',
-              backgroundColor: '#F9FAFB',
-              border: 'none',
-              width: '300px'
+              backgroundColor: 'var(--surface-muted)',
+              color: 'var(--text-dark)',
+              border: '1px solid var(--border-color)',
+              width: '100%',
+              height: '40px'
             }}
           />
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative' }} ref={notificationRef}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', zIndex: 2 }} ref={notificationRef}>
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          title={theme === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}
+          style={{
+            backgroundColor: 'var(--surface-muted)',
+            padding: '8px',
+            color: 'var(--text-dark)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
         <button 
           onClick={() => setShowNotifications(!showNotifications)}
           style={{
-            backgroundColor: '#F9FAFB',
+            backgroundColor: 'var(--surface-muted)',
             padding: '8px',
             color: 'var(--text-dark)',
             position: 'relative',
@@ -76,8 +119,8 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
             cursor: 'pointer',
             transition: 'background-color 0.2s'
           }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-soft)'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-muted)'}
         >
           <Bell size={20} />
           {alerts.length > 0 && (
@@ -100,7 +143,7 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
             top: '50px',
             right: '0',
             width: '320px',
-            backgroundColor: 'white',
+            backgroundColor: 'var(--surface-elevated)',
             borderRadius: '16px',
             boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
             border: '1px solid var(--border-color)',
@@ -121,15 +164,15 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
                 alerts.map(alert => (
                   <div key={alert.id} style={{
                     padding: '12px 16px',
-                    borderBottom: '1px solid #F9FAFB',
+                    borderBottom: '1px solid var(--border-color)',
                     display: 'flex',
                     gap: '12px',
                     alignItems: 'start',
-                    backgroundColor: 'white',
+                    backgroundColor: 'var(--surface-elevated)',
                     transition: 'background-color 0.2s'
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F9FAFB'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-muted)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-elevated)'}
                   >
                     <div style={{ padding: '8px', backgroundColor: 'rgba(230, 57, 70, 0.1)', borderRadius: '8px', color: 'var(--error)' }}>
                       <AlertTriangle size={16} />
@@ -145,7 +188,7 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
               )}
             </div>
             {alerts.length > 0 && (
-              <div style={{ padding: '12px', textAlign: 'center', backgroundColor: '#F9FAFB' }}>
+              <div style={{ padding: '12px', textAlign: 'center', backgroundColor: 'var(--surface-muted)' }}>
                 <span style={{ fontSize: '12px', color: 'var(--primary-mid)', fontWeight: '600', cursor: 'pointer' }}>Tümünü Gör</span>
               </div>
             )}
@@ -156,7 +199,7 @@ const Header = ({ title, searchTerm, setSearchTerm }) => {
           alignItems: 'center',
           gap: '12px',
           padding: '4px 4px 4px 12px',
-          backgroundColor: '#F9FAFB',
+          backgroundColor: 'var(--surface-muted)',
           borderRadius: '30px',
           border: '1px solid var(--border-color)'
         }}>

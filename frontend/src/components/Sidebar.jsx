@@ -19,8 +19,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   return (
     <div style={{
       width: 'var(--sidebar-width)',
-      backgroundColor: 'var(--primary-dark)',
-      color: 'var(--white)',
+      backgroundColor: 'var(--sidebar-bg)',
+      color: 'var(--on-primary)',
       display: 'flex',
       flexDirection: 'column',
       padding: '24px 16px',
@@ -43,7 +43,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         }}>
           <Leaf size={24} color="var(--primary-dark)" fill="var(--primary-dark)" />
         </div>
-        <h1 style={{ color: 'var(--white)', fontSize: '24px', margin: 0 }}>Koopilot</h1>
+        <h1 style={{ color: 'var(--on-primary)', fontSize: '24px', margin: 0 }}>Koopilot</h1>
       </div>
       <nav style={{ flex: 1 }}>
         {menuItems.map((item) => (
@@ -57,7 +57,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
               gap: '12px',
               padding: '12px 16px',
               backgroundColor: activeTab === item.id ? 'var(--primary-mid)' : 'transparent',
-              color: 'var(--white)',
+              color: 'var(--on-primary)',
               marginBottom: '8px',
               textAlign: 'left',
               borderRadius: '12px',

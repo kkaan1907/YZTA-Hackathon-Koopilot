@@ -69,7 +69,7 @@ const ShippingPanel = () => {
                 width: '100%',
                 height: '48px',
                 paddingLeft: '48px',
-                backgroundColor: '#F9FAFB'
+                backgroundColor: 'var(--surface-muted)'
               }}
             />
           </div>
@@ -78,7 +78,7 @@ const ShippingPanel = () => {
             style={{
               padding: '0 24px',
               backgroundColor: 'var(--primary-mid)',
-              color: 'var(--white)',
+              color: 'var(--on-primary)',
               fontWeight: '600'
             }}
             disabled={isLoading}
@@ -126,7 +126,7 @@ const ShippingPanel = () => {
                   onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; }}
                 >
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <div style={{ padding: '10px', backgroundColor: '#F3F4F6', borderRadius: '12px', color: 'var(--primary-mid)' }}>
+                    <div style={{ padding: '10px', backgroundColor: 'var(--surface-soft)', borderRadius: '12px', color: 'var(--primary-mid)' }}>
                       <Package size={20} />
                     </div>
                     <div>
@@ -199,7 +199,7 @@ const ShippingPanel = () => {
             gridTemplateColumns: '1fr 1fr',
             gap: '24px',
             padding: '24px',
-            backgroundColor: '#F9FAFB',
+            backgroundColor: 'var(--surface-muted)',
             borderRadius: '20px'
           }}>
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -276,7 +276,7 @@ const ShippingPanel = () => {
                   justifyContent: 'center',
                   gap: '8px',
                   padding: '12px',
-                  backgroundColor: selectedShipment.shipping_status === 'Kargoya Verildi' ? '#F3F4F6' : 'white',
+                  backgroundColor: selectedShipment.shipping_status === 'Kargoya Verildi' ? 'var(--surface-soft)' : 'var(--surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '12px',
                   cursor: 'pointer',
@@ -295,7 +295,7 @@ const ShippingPanel = () => {
                   justifyContent: 'center',
                   gap: '8px',
                   padding: '12px',
-                  backgroundColor: selectedShipment.shipping_status === 'Yolda' ? '#F3F4F6' : 'white',
+                  backgroundColor: selectedShipment.shipping_status === 'Yolda' ? 'var(--surface-soft)' : 'var(--surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '12px',
                   cursor: 'pointer',
@@ -314,7 +314,7 @@ const ShippingPanel = () => {
                   justifyContent: 'center',
                   gap: '8px',
                   padding: '12px',
-                  backgroundColor: selectedShipment.shipping_status === 'Teslim Edildi' ? '#F3F4F6' : 'var(--success)',
+                  backgroundColor: selectedShipment.shipping_status === 'Teslim Edildi' ? 'var(--surface-soft)' : 'var(--success)',
                   color: selectedShipment.shipping_status === 'Teslim Edildi' ? 'inherit' : 'white',
                   border: 'none',
                   borderRadius: '12px',

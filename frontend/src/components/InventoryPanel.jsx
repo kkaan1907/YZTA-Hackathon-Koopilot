@@ -124,7 +124,7 @@ const InventoryPanel = ({ searchTerm }) => {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 16px',
-              backgroundColor: 'white',
+              backgroundColor: 'var(--surface)',
               color: 'var(--text-light)',
               border: '1px solid var(--border-color)',
               borderRadius: '12px',
@@ -162,7 +162,7 @@ const InventoryPanel = ({ searchTerm }) => {
               gap: '8px',
               padding: '10px 20px',
               backgroundColor: 'var(--primary-mid)',
-              color: 'white',
+              color: 'var(--on-primary)',
               border: 'none',
               borderRadius: '12px',
               fontWeight: '600',
@@ -238,7 +238,7 @@ const InventoryPanel = ({ searchTerm }) => {
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '2px solid #F3F4F6' }}>
+            <tr style={{ borderBottom: '2px solid var(--surface-soft)' }}>
                <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-light)', fontWeight: '600' }}>Ürün Adı</th>
               <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-light)', fontWeight: '600' }}>Kategori</th>
               <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-light)', fontWeight: '600' }}>Stok</th>
@@ -249,12 +249,12 @@ const InventoryPanel = ({ searchTerm }) => {
           </thead>
           <tbody>
             {filteredInventory.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #F9FAFB' }}>
+              <tr key={item.id} style={{ borderBottom: '1px solid var(--surface-muted)' }}>
                  <td style={{ padding: '16px', fontWeight: '600' }}>{item.name}</td>
                 <td style={{ padding: '16px' }}>
                   <span style={{
                     padding: '4px 10px',
-                    backgroundColor: '#F3F4F6',
+                    backgroundColor: 'var(--surface-soft)',
                     borderRadius: '6px',
                     fontSize: '12px'
                   }}>{item.category}</span>
@@ -287,7 +287,7 @@ const InventoryPanel = ({ searchTerm }) => {
                       borderRadius: '8px',
                       transition: 'all 0.2s'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = 'var(--primary-mid)'; }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--surface-soft)'; e.currentTarget.style.color = 'var(--primary-mid)'; }}
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-light)'; }}
                   >
                     <Edit2 size={18} />
@@ -314,7 +314,7 @@ const InventoryPanel = ({ searchTerm }) => {
           backdropFilter: 'blur(4px)'
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--surface)',
             padding: '32px',
             borderRadius: '24px',
             width: '100%',
@@ -388,13 +388,13 @@ const InventoryPanel = ({ searchTerm }) => {
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer' }}
+                  style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface)', cursor: 'pointer' }}
                 >
                   İptal
                 </button>
                 <button 
                   type="submit" 
-                  style={{ flex: 2, padding: '14px', borderRadius: '12px', border: 'none', background: 'var(--primary-mid)', color: 'white', fontWeight: '600', cursor: 'pointer' }}
+                  style={{ flex: 2, padding: '14px', borderRadius: '12px', border: 'none', background: 'var(--primary-mid)', color: 'var(--on-primary)', fontWeight: '600', cursor: 'pointer' }}
                 >
                   {editingProduct ? 'Güncelle' : 'Ekle'}
                 </button>

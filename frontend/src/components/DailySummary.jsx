@@ -23,14 +23,14 @@ const DailySummary = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div style={{
         backgroundColor: 'var(--primary-dark)',
-        color: 'var(--white)',
+        color: 'var(--on-primary)',
         padding: '32px',
         borderRadius: '24px',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ color: 'var(--white)', fontSize: '28px', marginBottom: '8px' }}>Günün Özeti 🌿</h2>
+          <h2 style={{ color: 'var(--on-primary)', fontSize: '28px', marginBottom: '8px' }}>Günün Özeti 🌿</h2>
           <p style={{ opacity: 0.8, fontSize: '16px' }}>{summary.summary_text}</p>
         </div>
         <BarChart3 size={120} style={{
@@ -38,7 +38,7 @@ const DailySummary = () => {
           right: '-20px',
           bottom: '-20px',
           opacity: 0.1,
-          color: 'var(--white)'
+          color: 'var(--on-primary)'
         }} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
@@ -95,7 +95,7 @@ const DailySummary = () => {
                   </span>
                   <span>{count} mesaj</span>
                 </div>
-                <div style={{ height: '8px', backgroundColor: '#F3F4F6', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '8px', backgroundColor: 'var(--surface-soft)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div style={{
                     width: `${percentage}%`,
                     height: '100%',

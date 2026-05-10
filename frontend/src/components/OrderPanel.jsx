@@ -118,7 +118,7 @@ const OrderPanel = () => {
               gridTemplateColumns: '1fr 1fr', 
               gap: '12px',
               padding: '16px',
-              backgroundColor: '#F9FAFB',
+              backgroundColor: 'var(--surface-muted)',
               borderRadius: '16px',
               fontSize: '14px'
             }}>
@@ -165,7 +165,7 @@ const OrderPanel = () => {
                     alignItems: 'center',
                     fontSize: '14px',
                     padding: '8px 10px',
-                    backgroundColor: '#F9FAFB',
+                    backgroundColor: 'var(--surface-muted)',
                     borderRadius: '8px'
                   }}>
                     <span style={{ fontWeight: '600' }}>{item.product_name || `Ürün #${item.product_id}`}</span>
@@ -185,7 +185,7 @@ const OrderPanel = () => {
                   style={{
                     flex: 1,
                     backgroundColor: 'var(--primary-mid)',
-                    color: 'var(--white)',
+                    color: 'var(--on-primary)',
                     height: '44px',
                     display: 'flex',
                     alignItems: 'center',
