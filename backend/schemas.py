@@ -7,7 +7,7 @@ class ProductBase(BaseModel):
     description: Optional[str] = None
     category: str
     unit: str = "Adet"
-    stock: int = Field(..., ge=0, description="Ürün stok adedi negatif olamaz")
+    stock: float = Field(..., ge=0, description="Ürün stok adedi negatif olamaz")
     price: float = Field(..., ge=0.0, description="Ürün fiyatı negatif olamaz")
 class ProductCreate(ProductBase):
     pass
@@ -17,7 +17,7 @@ class ProductResponse(ProductBase):
         from_attributes = True
 class OrderItemBase(BaseModel):
     product_id: int
-    quantity: int = Field(..., gt=0, description="Sipariş adedi en az 1 olmalıdır")
+    quantity: float = Field(..., gt=0, description="Sipariş adedi en az 1 olmalıdır")
 class OrderItemResponse(OrderItemBase):
     id: int
     class Config:

@@ -17,7 +17,7 @@ class Product(Base):
     description = Column(String, nullable=True)
     category = Column(String)
     unit = Column(String, default="Adet")
-    stock = Column(Integer, default=0)
+    stock = Column(Float, default=0.0)
     price = Column(Float, default=0.0)
 class Order(Base):
     __tablename__ = "orders"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getInventory, updateProduct, createProduct } from '../services/api';
-import { Package, AlertTriangle, TrendingUp, Search, Plus, Edit2, Save, X } from 'lucide-react';
+import { Package, AlertTriangle, TrendingUp, Search, Plus, Edit2, Save, X, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import { uploadInventory } from '../services/api';
 const InventoryPanel = ({ searchTerm }) => {
   const [inventory, setInventory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +15,8 @@ const InventoryPanel = ({ searchTerm }) => {
     unit: 'Adet',
     description: ''
   });
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef(null);
   const filteredInventory = inventory.filter(item => 
     item.name.toLowerCase().includes((searchTerm || '').toLowerCase()) ||
     item.category.toLowerCase().includes((searchTerm || '').toLowerCase())
@@ -69,29 +72,107 @@ const InventoryPanel = ({ searchTerm }) => {
       alert('Kaydedilirken bir hata oluştu.');
     }
   };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const result = await uploadInventory(file);
+      alert(`Yükleme başarılı! ${result.creations} yeni ürün eklendi, ${result.updates} ürün güncellendi.`);
+      fetchInventory();
+    } catch (error) {
+      console.error('Yükleme hatası:', error);
+      alert('Dosya yüklenirken bir hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const downloadTemplate = () => {
+    const csvContent = "name,category,stock,price,unit,description\nÖrnek Ürün,Kategori,10,50.0,Adet,Ürün açıklaması";
+    const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "koopilot_urun_sablonu.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   if (isLoading) return <div style={{ padding: '24px' }}>Yükleniyor...</div>;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0, color: 'var(--primary-dark)', fontSize: '20px' }}>Envanter Yönetimi</h2>
-        <button 
-          onClick={() => handleOpenModal()}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 20px',
-            backgroundColor: 'var(--primary-mid)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(45, 106, 79, 0.2)'
-          }}
-        >
-          <Plus size={18} /> Yeni Ürün Ekle
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            accept=".xlsx, .csv" 
+            style={{ display: 'none' }} 
+          />
+          <button 
+            onClick={downloadTemplate}
+            title="Excel Şablonu İndir"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 16px',
+              backgroundColor: 'white',
+              color: 'var(--text-light)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2'
+            }}
+          >
+            <Download size={18} /> Şablon
+          </button>
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              backgroundColor: 'var(--primary-light)',
+              color: 'var(--primary-dark)',
+              border: 'none',
+              borderRadius: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              opacity: isUploading ? 0.7 : 1
+            }}
+          >
+            <Upload size={18} /> {isUploading ? 'Yükleniyor...' : 'Toplu Yükle'}
+          </button>
+          <button 
+            onClick={() => handleOpenModal()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              backgroundColor: 'var(--primary-mid)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(45, 106, 79, 0.2)'
+            }}
+          >
+            <Plus size={18} /> Yeni Ürün Ekle
+          </button>
+        </div>
       </div>
       {}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>

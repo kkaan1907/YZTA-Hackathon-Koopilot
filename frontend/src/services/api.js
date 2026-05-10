@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http:
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -23,6 +23,20 @@ export const updateProduct = async (productId, productData) => {
 };
 export const createProduct = async (productData) => {
   const response = await api.post('/inventory', productData);
+  return response.data;
+};
+export const uploadInventory = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/inventory/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+export const getInventoryAlerts = async () => {
+  const response = await api.get('/inventory/alerts');
   return response.data;
 };
 export const getOrders = async () => {

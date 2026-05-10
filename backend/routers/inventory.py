@@ -82,32 +82,39 @@ async def upload_inventory(file: UploadFile = File(...), db: Session = Depends(g
         creations = 0
         for index, row in df.iterrows():
             try:
-                stock_val = int(row['stock']) if pd.notna(row['stock']) else 0
+                # Float conversion for flexibility (kg, liters etc)
+                stock_val = float(row['stock']) if pd.notna(row['stock']) else 0.0
                 price_val = float(row['price']) if pd.notna(row['price']) else 0.0
                 
                 if stock_val < 0 or price_val < 0:
                     continue
                     
-                product = db.query(models.Product).filter(models.Product.name == str(row['name'])).first()
+                # Use name to find existing product
+                product_name = str(row['name']).strip()
+                product = db.query(models.Product).filter(models.Product.name == product_name).first()
+                
                 if product:
                     product.stock = stock_val
                     product.price = price_val
-                    product.category = str(row['category'])
-                    if 'unit' in df.columns and pd.notna(row['unit']): product.unit = str(row['unit'])
-                    if 'description' in df.columns and pd.notna(row['description']): product.description = str(row['description'])
+                    product.category = str(row['category']).strip()
+                    if 'unit' in df.columns and pd.notna(row['unit']): 
+                        product.unit = str(row['unit']).strip()
+                    if 'description' in df.columns and pd.notna(row['description']): 
+                        product.description = str(row['description']).strip()
                     updates += 1
                 else:
                     new_prod = models.Product(
-                        name=str(row['name']),
-                        category=str(row['category']),
+                        name=product_name,
+                        category=str(row['category']).strip(),
                         stock=stock_val,
                         price=price_val,
-                        unit=str(row.get('unit', 'Adet')) if pd.notna(row.get('unit')) else 'Adet',
-                        description=str(row.get('description', '')) if pd.notna(row.get('description')) else ''
+                        unit=str(row.get('unit', 'Adet')).strip() if pd.notna(row.get('unit')) else 'Adet',
+                        description=str(row.get('description', '')).strip() if pd.notna(row.get('description')) else ''
                     )
                     db.add(new_prod)
                     creations += 1
-            except Exception:
+            except Exception as e:
+                print(f"Row {index} processing error: {e}")
                 continue
         db.commit()
         return {"status": "success", "updates": updates, "creations": creations}
