@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getDailySummary } from '../services/api';
 import { BarChart3, MessageSquare, AlertCircle, Calendar } from 'lucide-react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+
 const DailySummary = () => {
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,15 +24,13 @@ const DailySummary = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div className="glass-card" style={{
-        backgroundColor: 'var(--primary-dark)',
-        color: 'var(--on-primary)',
         padding: '32px',
         borderRadius: '24px',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ color: 'var(--on-primary)', fontSize: '28px', marginBottom: '8px' }}>Günün Özeti 🌿</h2>
+          <h2 style={{ color: 'inherit', fontSize: '28px', marginBottom: '8px' }}>Günün Özeti 🌿</h2>
           <p style={{ opacity: 0.8, fontSize: '16px' }}>{summary.summary_text}</p>
         </div>
         <BarChart3 size={120} style={{
@@ -38,7 +38,7 @@ const DailySummary = () => {
           right: '-20px',
           bottom: '-20px',
           opacity: 0.1,
-          color: 'var(--on-primary)'
+          color: 'inherit'
         }} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
@@ -84,28 +84,61 @@ const DailySummary = () => {
         border: '1px solid var(--border-color)'
       }}>
         <h3 style={{ marginBottom: '20px' }}>Niyet Dağılımı</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {Object.entries(summary.intent_distribution).map(([intent, count]) => {
-            const percentage = (count / summary.total_messages) * 100;
-            return (
-              <div key={intent} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                  <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>
-                    {intent.replace('_', ' ')}
-                  </span>
-                  <span>{count} mesaj</span>
-                </div>
-                <div style={{ height: '8px', backgroundColor: 'var(--surface-soft)', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${percentage}%`,
-                    height: '100%',
-                    backgroundColor: 'var(--primary-light)',
-                    borderRadius: '4px'
-                  }}></div>
-                </div>
-              </div>
-            );
-          })}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+          <div style={{ height: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={Object.entries(summary.intent_distribution).map(([intent, count]) => ({
+                    name: intent.replace('_', ' ').charAt(0).toUpperCase() + intent.replace('_', ' ').slice(1),
+                    value: count
+                  }))}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {Object.entries(summary.intent_distribution).map((entry, index) => {
+                    const COLORS = ['#52B788', '#2D6A4F', '#74C69D', '#D6B98C', '#F4A261', '#2A9D8F'];
+                    return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                  })}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)', borderRadius: '12px', color: 'var(--text-dark)', boxShadow: 'var(--shadow-soft)' }}
+                  itemStyle={{ color: 'var(--primary-mid)', fontWeight: 'bold' }}
+                />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ height: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart 
+                data={Object.entries(summary.intent_distribution).map(([intent, count]) => ({
+                  name: intent.replace('_', ' ').charAt(0).toUpperCase() + intent.replace('_', ' ').slice(1),
+                  Adet: count
+                }))} 
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--text-light)" tick={{ fill: 'var(--text-light)', fontSize: 12 }} />
+                <YAxis stroke="var(--text-light)" tick={{ fill: 'var(--text-light)', fontSize: 12 }} allowDecimals={false} />
+                <Tooltip 
+                  cursor={{ fill: 'var(--surface-soft)' }}
+                  contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)', borderRadius: '12px', color: 'var(--text-dark)', boxShadow: 'var(--shadow-soft)' }}
+                  itemStyle={{ color: 'var(--primary-mid)', fontWeight: 'bold' }}
+                />
+                <Bar dataKey="Adet" fill="var(--primary-light)" radius={[6, 6, 0, 0]} barSize={40}>
+                  {Object.entries(summary.intent_distribution).map((entry, index) => {
+                    const COLORS = ['#52B788', '#2D6A4F', '#74C69D', '#D6B98C', '#F4A261', '#2A9D8F'];
+                    return <Cell key={`bar-cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
